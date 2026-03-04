@@ -3,46 +3,50 @@ import logoLight from "./logo-light.svg";
 
 export function Welcome() {
   return (
-    <main className="flex items-center justify-center pt-16 pb-4">
-      <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
-        <header className="flex flex-col items-center gap-9">
-          <div className="w-[500px] max-w-[100vw] p-4">
-            <img
-              src={logoLight}
-              alt="React Router"
-              className="block w-full dark:hidden"
-            />
-            <img
-              src={logoDark}
-              alt="React Router"
-              className="hidden w-full dark:block"
-            />
-          </div>
-        </header>
-        <div className="max-w-[300px] w-full space-y-6 px-4">
-          <nav className="rounded-3xl border border-gray-200 p-6 dark:border-gray-700 space-y-4">
-            <p className="leading-6 text-gray-700 dark:text-gray-200 text-center">
-              What&apos;s next?
+    <div className="container py-5">
+      <div className="row justify-content-center">
+        <div className="col-lg-8">
+
+          <div className="text-center mb-5">
+            <h1 className="display-4 fw-bold text-primary">
+              Campus Cart
+            </h1>
+            <p className="lead text-muted">
+              This is test to see whether bootstrap works              
             </p>
-            <ul>
-              {resources.map(({ href, text, icon }) => (
-                <li key={href}>
-                  <a
-                    className="group flex items-center gap-3 self-stretch p-3 leading-normal text-blue-700 hover:underline dark:text-blue-500"
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {icon}
-                    {text}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          </div>
+
+          <div className="card shadow border-primary mb-4">
+            <div className="card-header bg-primary text-white">
+              Test Card
+            </div>
+            <div className="card-body">
+              <h5 className="card-title">Looks good?</h5>
+              <p className="card-text">
+                Proper spacing, colors, shadows, rounded corners = success
+              </p>
+              <button className="btn btn-lg btn-success">
+                Big green button
+              </button>
+            </div>
+          </div>
+
+          <div className="alert alert-info">
+            <strong>Info:</strong> This alert should have nice blue background
+          </div>
+
+                    <div className="d-grid gap-3 d-sm-flex justify-content-sm-center">
+            <a href="/products" className="btn btn-primary btn-lg px-5">
+              Go to Products
+            </a>
+            <a href="/seller-dashboard" className="btn btn-outline-primary btn-lg px-5">
+              Go to Dashboard
+            </a>
+          </div>
+
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 
