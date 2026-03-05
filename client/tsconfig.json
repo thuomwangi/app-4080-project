@@ -4,7 +4,7 @@
     "**/.server/**/*",
     "**/.client/**/*",
     ".react-router/types/**/*"
-  ],
+, ".react-router/types/app/+routes.tstes.ts", ".react-router/types/app/+types/+routes.ts"  ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["node", "vite/client"],
