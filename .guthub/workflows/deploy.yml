@@ -1,0 +1,46 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install frontend dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: 🏗️ Build frontend
+        working-directory: client
+        run: npm run build
+
+      - name: 🚀 Deploy Frontend to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: vcp_3PHAOplZqICTjRICbbHMffgrcV8vaQLEgzBYfPioLjBV0xEzR34GQxeanpm isn
+          vercel-org-id: team_kqSrBfzESZ6ICQztB4gjqqQR
+          vercel-project-id: prj_MhXtwYDdSi4AgZXKBpoF0Uz0QWmG
+          working-directory: client
+          vercel-args: '--prod'           # ← removes for preview-only; keeps for prod
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: Trigger Render Deploy (clears cache)
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer rnd_tDa7l1907btJb2exUkpGvhLbNS5r" \
+            "https://api.render.com/v1/services/srv-d6kki9lm5p6s73dtbk3g/deploys?clearCache=clear"
