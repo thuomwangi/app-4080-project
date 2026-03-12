@@ -1,0 +1,17 @@
+name: Local Build Check
+
+on:
+  push:
+    branches: [ "ray-home-sellerdash" ] # Specifically for your branch
+
+jobs:
+  check-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: npm run build # If this fails, your code has a syntax error
