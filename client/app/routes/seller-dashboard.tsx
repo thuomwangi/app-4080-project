@@ -69,10 +69,10 @@ export default function SellerDashboard() {
           <h5 className="fw-bold mb-3">Key Metrics</h5>
           <div className="row g-4 mb-5">
             {[
-              { label: "Total Sales", val: "$12,345", icon: "bi-currency-dollar", sub: "Generated this month" },
+              { label: "Total Sales", val: "KES.12,345", icon: "KES", sub: "Generated this month" },
               { label: "Total Orders", val: "256", icon: "bi-cart3", sub: "Completed this month" },
               { label: "Active Customers", val: "88", icon: "bi-people", sub: "Engaged in last 30 days" },
-              { label: "Avg. Order Value", val: "$48.22", icon: "bi-box", sub: "Per completed order" }
+              { label: "Avg. Order Value", val: "KES.48.22", icon: "bi-box", sub: "Per completed order" }
             ].map((m, i) => (
               <div className="col-md-3" key={i}>
                 <div className={`${cardClass} p-3 text-center h-100`}>
@@ -139,9 +139,9 @@ export default function SellerDashboard() {
                   </tr>
                 </thead>
                 <tbody className="small">
-                  {[{ id: 'P001', name: 'Organic Chemistry Textbook', cat: 'Books', price: '$75.00', stock: 12 },
-                    { id: 'P002', name: 'Bluetooth Headphones', cat: 'Electronics', price: '$45.99', stock: 8 },
-                    { id: 'P003', name: 'Handmade Ceramic Mug', cat: 'Home Goods', price: '$18.50', stock: 25 }
+                  {[{ id: 'P001', name: 'Organic Chemistry Textbook', cat: 'Books', price: 'KES75.00', stock: 12 },
+                    { id: 'P002', name: 'Bluetooth Headphones', cat: 'Electronics', price: 'KES45.99', stock: 8 },
+                    { id: 'P003', name: 'Handmade Ceramic Mug', cat: 'Home Goods', price: 'KES18.50', stock: 25 }
                   ].map((p, idx) => (
                     <tr key={idx}>
                       <td>{p.id}</td><td className="fw-semibold">{p.name}</td><td>{p.cat}</td><td>{p.price}</td><td>{p.stock}</td>
@@ -170,10 +170,10 @@ export default function SellerDashboard() {
                    </tr>
                  </thead>
                  <tbody className="small">
-                   {[{ id: 'ORD001', name: 'Alice Johnson', date: '2023-10-26', total: '$93.50', status: 'Pending', color: 'warning' },
-                     { id: 'ORD002', name: 'Bob Williams', date: '2023-10-25', total: '$45.99', status: 'Shipped', color: 'info' },
-                     { id: 'ORD003', name: 'Charlie Brown', date: '2023-10-24', total: '$18.50', status: 'Delivered', color: 'success' },
-                     { id: 'ORD004', name: 'Diana Prince', date: '2023-10-24', total: '$75.00', status: 'Cancelled', color: 'danger' }
+                   {[{ id: 'ORD001', name: 'Alice Johnson', date: '2023-10-26', total: 'KES93.50', status: 'Pending', color: 'warning' },
+                     { id: 'ORD002', name: 'Bob Williams', date: '2023-10-25', total: 'KES45.99', status: 'Shipped', color: 'info' },
+                     { id: 'ORD003', name: 'Charlie Brown', date: '2023-10-24', total: 'KES18.50', status: 'Delivered', color: 'success' },
+                     { id: 'ORD004', name: 'Diana Prince', date: '2023-10-24', total: 'KES75.00', status: 'Cancelled', color: 'danger' }
                    ].map((o, idx) => (
                      <tr key={idx}>
                        <td className="fw-bold text-primary">{o.id}</td><td>{o.name}</td><td>{o.date}</td><td>{o.total}</td>
