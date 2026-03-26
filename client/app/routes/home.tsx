@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router'; // Added Link import
 
-// --- IMAGE IMPORTS (Adjusted for routes/ directory) ---
+// --- IMAGE IMPORTS ---
 import heroBg from '../assets/images/campus-hero.jpg';
 import studentImg from '../assets/images/student-hero.jpg'; 
 import laptopImg from '../assets/images/laptop.jpg';
@@ -18,21 +19,21 @@ const HomePage = () => {
 
   return (
     <div className="min-vh-100 bg-light">
-      {/* --- NAVIGATION (As seen in Screenshot 073828) --- */}
+      {/* --- NAVIGATION --- */}
       <nav className="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom px-4">
         <div className="container-fluid">
-          <a className="navbar-brand d-flex align-items-center gap-2" href="#">
+          <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
             <div className="bg-primary p-1 rounded">
               <i className="bi bi-cart-fill text-white"></i>
             </div>
             <span className="fw-bold text-primary fs-4">CampusCart</span>
-          </a>
+          </Link>
           
           <div className="collapse navbar-collapse justify-content-center">
             <ul className="navbar-nav gap-4">
-              <li className="nav-item"><a className="nav-link active" href="#"><i className="bi bi-house-door me-1"></i> Home</a></li>
-              <li className="nav-item"><a className="nav-link" href="#"><i className="bi bi-box-seam me-1"></i> Products</a></li>
-              <li className="nav-item"><a className="nav-link" href="#"><i className="bi bi-cart3 me-1"></i> Cart</a></li>
+              <li className="nav-item"><Link className="nav-link active" to="/"><i className="bi bi-house-door me-1"></i> Home</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/products"><i className="bi bi-box-seam me-1"></i> Products</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/seller-dashboard"><i className="bi bi-graph-up me-1"></i> Sell</Link></li>
             </ul>
           </div>
 
@@ -41,9 +42,8 @@ const HomePage = () => {
                 <span className="input-group-text bg-light border-0 rounded-start-pill"><i className="bi bi-search text-muted"></i></span>
                 <input type="text" className="form-control bg-light border-0 rounded-end-pill" placeholder="Search products..." />
              </div>
-             <i className="bi bi-brightness-high fs-5 cursor-pointer"></i>
-             <button className="btn btn-outline-dark border-0 fw-bold">Sign In</button>
-             <button className="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">Register</button>
+             <Link to="/login" className="btn btn-outline-dark border-0 fw-bold">Sign In</Link>
+             <Link to="/sign-up" className="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">Register</Link>
           </div>
         </div>
       </nav>
@@ -61,14 +61,9 @@ const HomePage = () => {
                 <h1 className="display-3 fw-bold mb-3">Discover & Sell Campus Treasures</h1>
                 <p className="fs-4 mb-4 opacity-90">Your go-to marketplace for USIU students. Find what you need or sell what you don't!</p>
                 
-                <div className="input-group input-group-lg mb-4 shadow" style={{ maxWidth: '500px' }}>
-                  <span className="input-group-text bg-white border-0 rounded-start-pill"><i className="bi bi-search text-muted"></i></span>
-                  <input type="text" className="form-control border-0 rounded-end-pill fs-6" placeholder="Search for textbooks, electronics, and more..." />
-                </div>
-
                 <div className="d-flex gap-3 flex-wrap">
-                  <button className="btn btn-primary btn-lg rounded-pill px-4 fw-bold">Register as Buyer</button>
-                  <button className="btn btn-light btn-lg rounded-pill px-4 fw-bold">Register as Seller</button>
+                  <Link to="/sign-up" className="btn btn-primary btn-lg rounded-pill px-4 fw-bold">Register as Buyer</Link>
+                  <Link to="/sign-up" className="btn btn-light btn-lg rounded-pill px-4 fw-bold">Register as Seller</Link>
                 </div>
               </div>
             </div>
@@ -87,22 +82,20 @@ const HomePage = () => {
         <div className="container py-4">
           <div className="d-flex justify-content-between align-items-end mb-5">
             <h2 className="fw-bold mb-0">Featured Products</h2>
-            <button className="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">View All Products</button>
+            <Link to="/products" className="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">View All Products</Link>
           </div>
           
           <div className="row g-4">
             {featuredProducts.map((prod, i) => (
               <div key={i} className="col-md-6 col-lg-3">
                 <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                  <div className="position-relative">
-                    <img src={prod.img} className="card-img-top object-fit-cover" style={{height: '200px'}} alt={prod.name} />
-                  </div>
+                  <img src={prod.img} className="card-img-top object-fit-cover" style={{height: '200px'}} alt={prod.name} />
                   <div className="card-body p-4">
                     <h6 className="fw-bold mb-1">{prod.name}</h6>
                     <p className="text-muted smaller mb-3" style={{fontSize: '0.8rem'}}>{prod.desc}</p>
                     <div className="d-flex justify-content-between align-items-center mt-3">
                       <span className="fw-bold text-primary fs-5">{prod.price}</span>
-                      <button className="btn btn-outline-dark btn-sm rounded px-3 fw-semibold">View Details</button>
+                      <Link to={`/products/${i}`} className="btn btn-outline-dark btn-sm rounded px-3 fw-semibold">View Details</Link>
                     </div>
                   </div>
                 </div>
@@ -112,81 +105,26 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- CONNECT SECTION (As seen in Screenshot 073905) --- */}
+      {/* --- CONNECT SECTION --- */}
       <section className="container py-5 text-center my-5">
         <h2 className="fw-bold mb-2 fs-1">CampusCart: Connect, Buy, Sell.</h2>
-        <p className="text-muted fs-5 mb-5">Your campus marketplace for students, by students. Simple, secure, and accessible.</p>
-        
-        <div className="row g-4 justify-content-center">
+        <div className="row g-4 justify-content-center mt-4">
           <div className="col-md-5">
             <div className="card p-5 border-0 shadow-sm rounded-4 h-100 bg-white">
               <i className="bi bi-cart3 text-primary display-5 mb-4"></i>
               <h3 className="fw-bold mb-3">For Buyers</h3>
-              <p className="text-muted mb-4 small">Discover unique items, textbooks, electronics, and more from your fellow students. Save money, support your community.</p>
-              <button className="btn btn-primary btn-lg rounded w-100 fw-bold py-3">Start Shopping</button>
+              <Link to="/products" className="btn btn-primary btn-lg rounded w-100 fw-bold py-3">Start Shopping</Link>
             </div>
           </div>
           <div className="col-md-5">
             <div className="card p-5 border-0 shadow-sm rounded-4 h-100 bg-white">
               <i className="bi bi-currency-exchange text-success display-5 mb-4"></i>
               <h3 className="fw-bold mb-3">For Sellers</h3>
-              <p className="text-muted mb-4 small">Easily list your unused items, turn them into cash, and manage your sales with our intuitive seller dashboard.</p>
-              <button className="btn btn-outline-dark btn-lg rounded w-100 fw-bold py-3">Become a Seller</button>
+              <Link to="/seller-dashboard" className="btn btn-outline-dark btn-lg rounded w-100 fw-bold py-3">Become a Seller</Link>
             </div>
           </div>
         </div>
       </section>
-
-      {/* --- MOCKUP FOOTER (Re-created from Screenshot 073905) --- */}
-      <footer className="bg-white pt-5 pb-4 border-top">
-        <div className="container">
-          <div className="row gy-5">
-            {/* Branding Column */}
-            <div className="col-lg-3">
-              <div className="d-flex align-items-center gap-2 mb-3">
-                <div className="bg-dark p-1 rounded">
-                  <i className="bi bi-cart-fill text-white"></i>
-                </div>
-                <span className="fw-bold fs-4 text-dark">CampusCart</span>
-              </div>
-              <p className="text-muted small">© 2026 CampusCart. All rights reserved.</p>
-            </div>
-
-            {/* Navigation Column */}
-            <div className="col-6 col-lg-3">
-              <h6 className="fw-bold text-dark mb-3">Navigation</h6>
-              <ul className="list-unstyled small text-muted lh-lg">
-                <li>Home</li>
-                <li>Products</li>
-                <li>About Us</li>
-                <li>Contact</li>
-                <li>Privacy Policy</li>
-              </ul>
-            </div>
-
-            {/* Contact Column */}
-            <div className="col-6 col-lg-3">
-              <h6 className="fw-bold text-dark mb-3">Contact Us</h6>
-              <div className="small text-muted mb-2">
-                <strong>Email:</strong> support@campuscart.com
-              </div>
-              <div className="small text-muted">
-                <strong>Phone:</strong> +254 (0) 123 456789
-              </div>
-            </div>
-
-            {/* Follow Column */}
-            <div className="col-lg-3 text-lg-end">
-              <h6 className="fw-bold text-dark mb-3">Follow Us</h6>
-              <div className="d-flex justify-content-lg-end gap-4 fs-4 text-dark">
-                <i className="bi bi-facebook cursor-pointer"></i>
-                <i className="bi bi-twitter-x cursor-pointer"></i>
-                <i className="bi bi-instagram cursor-pointer"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

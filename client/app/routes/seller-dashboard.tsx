@@ -1,261 +1,233 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router';
+import { getProducts, addProduct, deleteProduct, CATEGORIES, type Product } from '../lib/store';
 
 export default function SellerDashboard() {
-  // --- 1. ACCESSIBILITY STATE ---
+  const [products, setProducts] = useState<Product[]>([]);
+  const [activeTab, setActiveTab] = useState<'inventory' | 'analytics' | 'add'>('inventory');
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Accessibility States
   const [highContrast, setHighContrast] = useState(false);
   const [simplifiedMode, setSimplifiedMode] = useState(false);
 
-  // --- 2. THEME & SIMPLIFIED LOGIC ---
-  const themeClass = highContrast ? "bg-black text-white" : "bg-light text-dark";
-  const sidebarClass = highContrast ? "bg-black border-end border-secondary" : "bg-white border-end";
-  const mutedText = highContrast ? "text-white-50" : "text-muted";
+  // Form State for Adding Products
+  const [formData, setFormData] = useState({
+    name: "",
+    price: 0,
+    category: "Other",
+    description: "",
+    emoji: "📦",
+    stock: 1,
+    seller: "Adam" 
+  });
+
+  useEffect(() => {
+    setProducts(getProducts());
+  }, []);
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    addProduct(formData);
+    setProducts(getProducts()); 
+    setActiveTab('inventory'); // Go back to list after adding
+    setFormData({ name: "", price: 0, category: "Other", description: "", emoji: "📦", stock: 1, seller: "Adam" });
+  };
+
+  const handleDelete = (id: string) => {
+    if(confirm("Delete this listing?")) {
+      deleteProduct(id);
+      setProducts(getProducts());
+    }
+  };
+
+  const sellerProducts = products.filter(p => p.seller === "Adam");
   
-  // Simplified Mode removes shadows, adds borders, and increases padding for better focus
-  const cardClass = `card rounded-4 border-0 ${
-    highContrast ? 'bg-dark border border-white text-white' : 'bg-white text-dark'
-  } ${
-    simplifiedMode ? 'shadow-none border border-secondary-subtle p-lg-4' : 'shadow-sm'
-  }`;
+  // --- Analytics Logic ---
+  const categoryStats = CATEGORIES.filter(c => c !== "All").map(cat => {
+    const count = sellerProducts.filter(p => p.category === cat).length;
+    const value = sellerProducts.filter(p => p.category === cat).reduce((sum, p) => sum + (p.price * p.stock), 0);
+    return { name: cat, count, value };
+  });
+
+  const maxCount = Math.max(...categoryStats.map(s => s.count), 1);
+
+  // Style helpers
+  const themeClass = highContrast ? "bg-black text-white" : "bg-light text-dark";
+  const cardClass = `card rounded-4 border-0 shadow-sm p-4 ${highContrast ? 'bg-dark border border-white text-white' : 'bg-white text-dark'}`;
 
   return (
-    <div className={`container-fluid min-vh-100 ${themeClass} ${simplifiedMode ? 'simplified-active' : ''}`}>
+    <div className={`container-fluid min-vh-100 ${themeClass}`}>
       <div className="row">
         
-        {/* --- 1. SIDEBAR --- */}
-        <div className={`col-md-2 vh-100 p-4 position-fixed d-none d-md-block ${sidebarClass}`}>
-          <div className={`d-flex align-items-center mb-5 ${highContrast ? 'text-white' : 'text-primary'}`}>
-            <i className="bi bi-cart-fill fs-4 me-2"></i>
-            <h5 className="fw-bold mb-0">USIU Marketplace</h5>
+        {/* SIDEBAR */}
+        <div className="col-md-2 vh-100 p-4 border-end d-none d-md-block bg-white position-fixed shadow-sm">
+          <div className="d-flex align-items-center mb-5 text-primary">
+            <i className="bi bi-person-badge-fill fs-4 me-2"></i>
+            <h5 className="fw-bold mb-0">Seller Hub</h5>
           </div>
-          <ul className="nav flex-column">
-            <li className={`nav-item mb-3 fw-bold ${highContrast ? 'text-white' : 'text-primary'}`}>
-               <i className="bi bi-grid-1x2-fill me-2"></i> Dashboard
-            </li>
-            <li className={`nav-item mb-3 fw-semibold ${mutedText}`}>
-               <i className="bi bi-box-seam me-2"></i> Products
-            </li>
-            <li className={`nav-item mb-3 fw-semibold ${mutedText}`}>
-               <i className="bi bi-receipt me-2"></i> Orders
-            </li>
-            <li className={`nav-item fw-semibold ${mutedText}`}>
-               <i className="bi bi-people me-2"></i> Customers
-            </li>
-          </ul>
           
+          <div className="nav flex-column gap-2">
+            <button 
+              onClick={() => setActiveTab('inventory')}
+              className={`nav-link border-0 text-start rounded-3 px-3 py-2 ${activeTab === 'inventory' ? 'bg-primary text-white shadow' : 'text-muted'}`}
+            >
+              <i className="bi bi-box-seam me-2"></i> Inventory
+            </button>
+            <button 
+              onClick={() => setActiveTab('analytics')}
+              className={`nav-link border-0 text-start rounded-3 px-3 py-2 ${activeTab === 'analytics' ? 'bg-primary text-white shadow' : 'text-muted'}`}
+            >
+              <i className="bi bi-graph-up-arrow me-2"></i> Analytics
+            </button>
+            <button 
+              onClick={() => setActiveTab('add')}
+              className={`nav-link border-0 text-start rounded-3 px-3 py-2 ${activeTab === 'add' ? 'bg-primary text-white shadow' : 'text-muted'}`}
+            >
+              <i className="bi bi-plus-circle me-2"></i> Add New
+            </button>
+          </div>
+
           <div className="position-absolute bottom-0 start-0 p-4 w-100">
-            <div className="d-flex align-items-center">
-              <img src="https://via.placeholder.com/35" className="rounded-circle me-2" alt="Adam" />
-              <div>
-                <p className="small fw-bold mb-0">Adam Seller</p>
-                <p className={`smaller mb-0 ${mutedText}`} style={{fontSize: '0.7rem'}}>USIU Marketplace User</p>
-              </div>
-            </div>
+            <Link to="/products" className="btn btn-outline-secondary btn-sm w-100 rounded-pill">
+              <i className="bi bi-arrow-left me-2"></i> Back to Shop
+            </Link>
           </div>
         </div>
 
-        {/* --- MAIN CONTENT AREA --- */}
-        <div className="col-md-10 offset-md-2 p-4">
+        {/* MAIN AREA */}
+        <div className="col-md-10 offset-md-2 p-5">
           
-          {/* Header */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="fw-bold">Seller Dashboard</h2>
-            <div className="d-flex align-items-center">
-              <i className={`bi bi-bell fs-5 me-3 ${mutedText}`}></i>
-              <img src="https://via.placeholder.com/35" className="rounded-circle border" alt="Adam" />
-            </div>
-          </div>
-
-          {/* 2. KEY METRICS */}
-          <h5 className="fw-bold mb-3">Key Metrics</h5>
-          <div className="row g-4 mb-5">
-            {[
-              { label: "Total Sales", val: "KES.12,345", icon: "KES", sub: "Generated this month" },
-              { label: "Total Orders", val: "256", icon: "bi-cart3", sub: "Completed this month" },
-              { label: "Active Customers", val: "88", icon: "bi-people", sub: "Engaged in last 30 days" },
-              { label: "Avg. Order Value", val: "KES.48.22", icon: "bi-box", sub: "Per completed order" }
-            ].map((m, i) => (
-              <div className="col-md-3" key={i}>
-                <div className={`${cardClass} p-3 text-center h-100`}>
-                  <i className={`bi ${m.icon} fs-3 mb-2 ${highContrast ? 'text-white' : 'text-primary'}`}></i>
-                  <h4 className="fw-bold mb-0">{m.val}</h4>
-                  <p className={`small mb-0 ${mutedText}`}>{m.label}</p>
-                  {!simplifiedMode && <small className={mutedText} style={{fontSize: '0.7rem'}}>{m.sub}</small>}
+          {/* TAB 1: INVENTORY */}
+          {activeTab === 'inventory' && (
+            <div className="animate-in">
+              <div className="d-flex justify-content-between align-items-end mb-4">
+                <h2 className="fw-bold">My Products</h2>
+                <div className="text-end">
+                  <span className="badge bg-primary rounded-pill px-3">{sellerProducts.length} Total Items</span>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* 3. SALES & ORDER REPORTS (Hidden in Simplified Mode) */}
-          {!simplifiedMode && (
-            <div className="row g-4 mb-5">
-              <div className="col-md-7">
-                <div className={`${cardClass} p-4 h-100`}>
-                  <h6 className="fw-bold mb-4">Revenue Trends</h6>
-                  <div className={`${highContrast ? 'bg-secondary' : 'bg-light'} rounded-3 d-flex align-items-center justify-content-center`} style={{ height: "250px" }}>
-                    <span className={mutedText}>[Revenue Chart Placeholder]</span>
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-5">
-                <div className={`${cardClass} p-4 h-100`}>
-                  <h6 className="fw-bold mb-4">Order Distribution by Category</h6>
-                  <div className={`${highContrast ? 'bg-secondary' : 'bg-light'} rounded-3 d-flex align-items-center justify-content-center`} style={{ height: "250px" }}>
-                     <span className={mutedText}>[Category Donut Chart]</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 4. BUSINESS PROFILE */}
-          <h5 className="fw-bold mb-3">Business Profile</h5>
-          <div className={`${cardClass} p-4 mb-5`}>
-            <h6 className="fw-bold mb-4">Manage Your Profile</h6>
-            <div className="row">
-              <div className="col-md-8">
-                <label className={`form-label small fw-bold ${mutedText}`}>Business Name</label>
-                <input type="text" className={`form-control mb-3 ${highContrast ? 'bg-dark text-white border-white' : ''}`} defaultValue="Adam's Student Emporium" />
-                <label className={`form-label small fw-bold ${mutedText}`}>Business Description</label>
-                <textarea className={`form-control mb-3 ${highContrast ? 'bg-dark text-white border-white' : ''}`} rows="3">Selling quality used textbooks, electronics, and handmade crafts to USIU students.</textarea>
-                <label className={`form-label small fw-bold ${mutedText}`}>Contact Email</label>
-                <input type="email" className={`form-control mb-4 ${highContrast ? 'bg-dark text-white border-white' : ''}`} defaultValue="adam.seller@usiu.edu" />
-                <button className={`btn fw-bold px-4 py-2 ${highContrast ? 'btn-light' : 'btn-primary'}`}>Update Profile</button>
-              </div>
-            </div>
-          </div>
-
-          {/* 5. PRODUCT MANAGEMENT */}
-          <h5 className="fw-bold mb-3">Product Management</h5>
-          <div className={`${cardClass} p-4 mb-5`}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h6 className="fw-bold mb-0">Your Products</h6>
-              <button className={`btn btn-sm px-3 fw-bold ${highContrast ? 'btn-light' : 'btn-primary'}`}>Add New Product</button>
-            </div>
-            <div className="table-responsive">
-              <table className={`table table-hover align-middle ${highContrast ? 'table-dark' : ''} ${simplifiedMode ? 'table-borderless' : ''}`}>
-                <thead className={highContrast ? 'table-dark' : 'table-light'}>
-                  <tr className="small text-muted">
-                    <th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th>{!simplifiedMode && <th>Actions</th>}
-                  </tr>
-                </thead>
-                <tbody className="small">
-                  {[{ id: 'P001', name: 'Organic Chemistry Textbook', cat: 'Books', price: 'KES75.00', stock: 12 },
-                    { id: 'P002', name: 'Bluetooth Headphones', cat: 'Electronics', price: 'KES45.99', stock: 8 },
-                    { id: 'P003', name: 'Handmade Ceramic Mug', cat: 'Home Goods', price: 'KES18.50', stock: 25 }
-                  ].map((p, idx) => (
-                    <tr key={idx}>
-                      <td>{p.id}</td><td className="fw-semibold">{p.name}</td><td>{p.cat}</td><td>{p.price}</td><td>{p.stock}</td>
-                      {!simplifiedMode && (
-                        <td>
-                          <i className="bi bi-pencil-square me-3" style={{cursor: 'pointer'}}></i>
-                          <i className="bi bi-trash text-danger" style={{cursor: 'pointer'}}></i>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* 6. ORDER MANAGEMENT */}
-          <h5 className="fw-bold mb-3">Order Management</h5>
-          <div className={`${cardClass} p-4 mb-5`}>
-             <h6 className="fw-bold mb-4">Customer Orders</h6>
-             <div className="table-responsive">
-               <table className={`table table-hover align-middle ${highContrast ? 'table-dark' : ''}`}>
-                 <thead className={highContrast ? 'table-dark' : 'table-light'}>
-                   <tr className="small text-muted">
-                     <th>Order ID</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th>{!simplifiedMode && <th>Actions</th>}
-                   </tr>
-                 </thead>
-                 <tbody className="small">
-                   {[{ id: 'ORD001', name: 'Alice Johnson', date: '2023-10-26', total: 'KES93.50', status: 'Pending', color: 'warning' },
-                     { id: 'ORD002', name: 'Bob Williams', date: '2023-10-25', total: 'KES45.99', status: 'Shipped', color: 'info' },
-                     { id: 'ORD003', name: 'Charlie Brown', date: '2023-10-24', total: 'KES18.50', status: 'Delivered', color: 'success' },
-                     { id: 'ORD004', name: 'Diana Prince', date: '2023-10-24', total: 'KES75.00', status: 'Cancelled', color: 'danger' }
-                   ].map((o, idx) => (
-                     <tr key={idx}>
-                       <td className="fw-bold text-primary">{o.id}</td><td>{o.name}</td><td>{o.date}</td><td>{o.total}</td>
-                       <td>
-                          <span className={simplifiedMode ? 'fw-bold' : `badge rounded-pill bg-${o.color} text-${o.color === 'warning' ? 'dark' : 'white'}`}>
-                            {o.status}
-                          </span>
-                       </td>
-                       {!simplifiedMode && <td><i className="bi bi-eye me-2"></i><i className="bi bi-truck"></i></td>}
-                     </tr>
-                   ))}
-                 </tbody>
-               </table>
-             </div>
-          </div>
-
-          {/* 7. CUSTOMER RELATIONS MANAGEMENT */}
-          <h5 className="fw-bold mb-3">Customer Relations Management</h5>
-          <div className="row g-4 mb-5">
-            <div className="col-md-6">
-              <div className={`${cardClass} p-4 h-100`}>
-                <h6 className="fw-bold mb-4">Your Customers</h6>
+              
+              <div className={cardClass}>
+                <input 
+                  type="text" 
+                  className="form-control mb-4 bg-light border-0 py-2" 
+                  placeholder="Filter by name..." 
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
                 <div className="table-responsive">
-                  <table className={`table table-sm align-middle ${highContrast ? 'table-dark' : ''}`}>
-                    <thead className={highContrast ? 'table-dark' : 'table-light'}>
-                      <tr className="small text-muted"><th>Name</th><th>Email</th><th>Purchases</th></tr>
+                  <table className={`table align-middle ${highContrast ? 'table-dark' : ''}`}>
+                    <thead>
+                      <tr className="text-muted small uppercase">
+                        <th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Action</th>
+                      </tr>
                     </thead>
-                    <tbody className="small">
-                      {[{ n: 'Alice Johnson', e: 'alice@example.com', p: 3 }, { n: 'Bob Williams', e: 'bob@example.com', p: 5 }, { n: 'Charlie Brown', e: 'charlie@example.com', p: 1 }].map((c, i) => (
-                        <tr key={i}><td className="py-3">{!simplifiedMode && <i className="bi bi-person me-2"></i>}{c.n}</td><td className={mutedText}>{c.e}</td><td>{c.p}</td></tr>
+                    <tbody>
+                      {sellerProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).map(p => (
+                        <tr key={p.id}>
+                          <td><span className="me-2">{p.emoji}</span> <strong>{p.name}</strong></td>
+                          <td><small className="badge bg-secondary-subtle text-dark border-0">{p.category}</small></td>
+                          <td className="fw-bold">KES {p.price.toLocaleString()}</td>
+                          <td>{p.stock}</td>
+                          <td>
+                            <button onClick={() => handleDelete(p.id)} className="btn btn-sm text-danger border-0">
+                              <i className="bi bi-trash"></i>
+                            </button>
+                          </td>
+                        </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               </div>
             </div>
-            <div className="col-md-6">
-              <div className={`${cardClass} p-4 h-100`}>
-                <h6 className="fw-bold mb-4">Customer Feedback</h6>
-                {!simplifiedMode && (
-                  <div className={`btn-group w-100 mb-4 p-1 rounded-3 ${highContrast ? 'bg-secondary' : 'bg-light'}`}>
-                    <button className="btn btn-white shadow-sm btn-sm fw-bold">Open</button>
-                    <button className={`btn btn-sm ${mutedText}`}>In Progress</button>
-                    <button className={`btn btn-sm ${mutedText}`}>Resolved</button>
+          )}
+
+          {/* TAB 2: ANALYTICS (CSS BAR CHART) */}
+          {activeTab === 'analytics' && (
+            <div className="animate-in">
+              <h2 className="fw-bold mb-4">Business Performance</h2>
+              <div className="row g-4">
+                <div className="col-md-8">
+                  <div className={cardClass}>
+                    <h6 className="fw-bold mb-4">Stock Distribution by Category</h6>
+                    <div className="d-flex align-items-end gap-3" style={{ height: '200px' }}>
+                      {categoryStats.map(stat => (
+                        <div key={stat.name} className="flex-grow-1 d-flex flex-column align-items-center">
+                          <div 
+                            className="bg-primary rounded-top-2 w-100 transition-all" 
+                            style={{ 
+                              height: `${(stat.count / maxCount) * 100}%`,
+                              opacity: stat.count === 0 ? 0.1 : 1,
+                              minHeight: '4px'
+                            }}
+                          ></div>
+                          <small className="text-muted mt-2" style={{ fontSize: '0.65rem', textTransform: 'uppercase' }}>{stat.name}</small>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                )}
-                <div className="border-bottom pb-3 mb-3">
-                  <div className="d-flex justify-content-between align-items-center mb-1">
-                    <span className="fw-bold small text-warning-emphasis">Item damaged</span>
-                    <span className={`${mutedText} smaller`}>2023-10-27</span>
-                  </div>
-                  <div className={simplifiedMode ? '' : 'ps-4'}>
-                    <p className="smaller mb-1">Customer: Alice Johnson</p>
-                    <button className={`btn btn-sm py-0 px-3 rounded-pill mt-2 ${highContrast ? 'btn-outline-light' : 'btn-outline-secondary'}`} style={{fontSize: '0.75rem'}}>Mark In Progress</button>
+                </div>
+                <div className="col-md-4">
+                  <div className={`${cardClass} h-100 bg-primary text-white`}>
+                    <h6 className="fw-bold opacity-75">Estimated Value</h6>
+                    <h1 className="fw-bold">KES {categoryStats.reduce((a, b) => a + b.value, 0).toLocaleString()}</h1>
+                    <p className="small mb-0 opacity-75 mt-auto">Based on current stock levels</p>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* 8. ACCESSIBILITY SETTINGS */}
-          <h5 className="fw-bold mb-3">Accessibility Settings</h5>
-          <div className={`${cardClass} p-4 mb-4`}>
-            <h6 className="fw-bold mb-4">Interface Options</h6>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <div>
-                <span className={`fw-semibold ${mutedText}`}>Simplified Interface Mode</span>
-                {simplifiedMode && <p className="smaller mb-0 text-success">Active: Clutter Reduced</p>}
-              </div>
-              <div className="form-check form-switch">
-                <input className="form-check-input fs-4" type="checkbox" checked={simplifiedMode} onChange={() => setSimplifiedMode(!simplifiedMode)} />
+          {/* TAB 3: ADD PRODUCT */}
+          {activeTab === 'add' && (
+            <div className="animate-in">
+              <h2 className="fw-bold mb-4">List New Product</h2>
+              <div className="col-lg-7">
+                <div className={cardClass}>
+                  <form onSubmit={handleSave}>
+                    <div className="mb-3">
+                      <label className="form-label small fw-bold">Item Name</label>
+                      <input type="text" className="form-control" required onChange={e => setFormData({...formData, name: e.target.value})} />
+                    </div>
+                    <div className="row g-3 mb-3">
+                      <div className="col">
+                        <label className="form-label small fw-bold">Price (KES)</label>
+                        <input type="number" className="form-control" required onChange={e => setFormData({...formData, price: Number(e.target.value)})} />
+                      </div>
+                      <div className="col">
+                        <label className="form-label small fw-bold">Stock</label>
+                        <input type="number" className="form-control" required defaultValue={1} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} />
+                      </div>
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label small fw-bold">Category</label>
+                      <select className="form-select" onChange={e => setFormData({...formData, category: e.target.value})}>
+                        {CATEGORIES.filter(c => c !== "All").map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div className="mb-4">
+                      <label className="form-label small fw-bold">Description</label>
+                      <textarea className="form-control" rows={3} onChange={e => setFormData({...formData, description: e.target.value})}></textarea>
+                    </div>
+                    <button type="submit" className="btn btn-primary w-100 py-3 rounded-pill fw-bold">Confirm Listing</button>
+                  </form>
+                </div>
               </div>
             </div>
-            <div className="d-flex justify-content-between align-items-center">
-              <span className={`fw-semibold ${mutedText}`}>High Contrast Mode</span>
-              <div className="form-check form-switch">
-                <input className="form-check-input fs-4" type="checkbox" checked={highContrast} onChange={() => setHighContrast(!highContrast)} />
-              </div>
-            </div>
-          </div>
+          )}
 
-          <footer className={`text-center small py-4 ${mutedText}`}>© 2026 USIU Marketplace. All rights reserved.</footer>
+          {/* SHARED SETTINGS BOX */}
+          <div className="mt-5 p-4 border rounded-4 bg-white opacity-75">
+             <div className="form-check form-switch d-inline-block me-4">
+                <input className="form-check-input" type="checkbox" onChange={() => setSimplifiedMode(!simplifiedMode)} />
+                <label className="small fw-bold">Simple Mode</label>
+             </div>
+             <div className="form-check form-switch d-inline-block">
+                <input className="form-check-input" type="checkbox" onChange={() => setHighContrast(!highContrast)} />
+                <label className="small fw-bold">High Contrast</label>
+             </div>
+          </div>
         </div>
       </div>
     </div>
