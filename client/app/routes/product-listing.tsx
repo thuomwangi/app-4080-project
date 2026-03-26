@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import {
   getProducts, getCart, saveCart, addToCart, updateCartQty, removeFromCart,
-  cartCount, cartTotal, ksh, CATEGORIES,
+  CATEGORIES,
   type Product, type CartItem,
-} from "../lib/store";
+} from "./store";
 
 export default function ProductListing() {
+  const navigate = useNavigate();
+
   const [products, setProducts]   = useState<Product[]>([]);
   const [cart,     setCart]       = useState<CartItem[]>([]);
   const [search,   setSearch]     = useState("");
@@ -42,6 +44,11 @@ export default function ProductListing() {
   const handleRemove = (id: string) => {
     removeFromCart(id);
     setCart(getCart());
+  };
+
+  const handleClearCart = () => {
+    saveCart([]);
+    setCart([]);
   };
 
   // filter + sort
@@ -154,10 +161,12 @@ export default function ProductListing() {
                   <div className="card h-100 shadow-sm border-0 product-card">
                     {/* image */}
                     <Link to={`/products/${p.id}`} className="text-decoration-none">
-                      <div className="bg-light d-flex align-items-center justify-content-center position-relative overflow-hidden"
-                        style={{ height: 190 }}>
+                      <div
+                        className="bg-light d-flex align-items-center justify-content-center position-relative overflow-hidden"
+                        style={{ height: 190 }}
+                      >
                         {p.image
-                          ? <img src={p.image} alt={p.name} className="w-100 h-100" style={{ objectFit:"cover" }} />
+                          ? <img src={p.image} alt={p.name} className="w-100 h-100" style={{ objectFit: "cover" }} />
                           : <span style={{ fontSize: 64 }}>{p.emoji}</span>
                         }
                         {p.tag && (
@@ -181,7 +190,7 @@ export default function ProductListing() {
                       <Link to={`/products/${p.id}`} className="text-decoration-none text-dark">
                         <h6 className="card-title fw-semibold lh-sm mb-1">{p.name}</h6>
                       </Link>
-                      <p className="text-muted small mb-2 flex-grow-1" style={{ display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
+                      <p className="text-muted small mb-2 flex-grow-1" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                         {p.description}
                       </p>
                       <div className="d-flex align-items-center justify-content-between mt-auto">
@@ -243,10 +252,12 @@ export default function ProductListing() {
                 <div className="d-flex flex-column gap-3">
                   {cart.map(item => (
                     <div key={item.id} className="d-flex gap-3 align-items-center border rounded p-2">
-                      <div className="bg-light rounded d-flex align-items-center justify-content-center flex-shrink-0"
-                        style={{ width: 52, height: 52, overflow:"hidden" }}>
+                      <div
+                        className="bg-light rounded d-flex align-items-center justify-content-center flex-shrink-0"
+                        style={{ width: 52, height: 52, overflow: "hidden" }}
+                      >
                         {item.image
-                          ? <img src={item.image} alt={item.name} className="w-100 h-100" style={{ objectFit:"cover" }} />
+                          ? <img src={item.image} alt={item.name} className="w-100 h-100" style={{ objectFit: "cover" }} />
                           : <span style={{ fontSize: 28 }}>{item.emoji}</span>
                         }
                       </div>
@@ -255,9 +266,9 @@ export default function ProductListing() {
                         <p className="mb-0 text-primary small fw-bold">KSh {item.price.toLocaleString()}</p>
                       </div>
                       <div className="d-flex align-items-center gap-1 flex-shrink-0">
-                        <button className="btn btn-outline-secondary btn-sm py-0" style={{ lineHeight:1.4 }} onClick={() => handleQty(item.id, -1)}>−</button>
+                        <button className="btn btn-outline-secondary btn-sm py-0" style={{ lineHeight: 1.4 }} onClick={() => handleQty(item.id, -1)}>−</button>
                         <span className="px-1 small fw-semibold">{item.qty}</span>
-                        <button className="btn btn-outline-secondary btn-sm py-0" style={{ lineHeight:1.4 }} onClick={() => handleQty(item.id, +1)}>+</button>
+                        <button className="btn btn-outline-secondary btn-sm py-0" style={{ lineHeight: 1.4 }} onClick={() => handleQty(item.id, +1)}>+</button>
                         <button className="btn btn-link btn-sm text-danger p-0 ms-1" onClick={() => handleRemove(item.id)}>✕</button>
                       </div>
                     </div>
@@ -273,10 +284,13 @@ export default function ProductListing() {
                   <span className="fw-bold fs-5 text-primary">KSh {total.toLocaleString()}</span>
                 </div>
                 <div className="d-grid gap-2">
-                  <button className="btn btn-primary fw-semibold" onClick={() => { setShowCart(false); }}>
+                  <button
+                    className="btn btn-primary fw-semibold"
+                    onClick={() => { setShowCart(false); navigate("/checkout"); }}
+                  >
                     Proceed to Checkout →
                   </button>
-                  <button className="btn btn-outline-secondary btn-sm" onClick={() => { removeFromCart(""); setCart([]); }}>
+                  <button className="btn btn-outline-secondary btn-sm" onClick={handleClearCart}>
                     Clear Cart
                   </button>
                 </div>
@@ -288,8 +302,10 @@ export default function ProductListing() {
 
       {/* ── Toast ── */}
       {toast && (
-        <div className="position-fixed bottom-0 start-50 translate-middle-x mb-4 px-4 py-2 bg-dark text-white rounded-pill shadow"
-          style={{ zIndex: 9999, whiteSpace:"nowrap", fontSize: 14 }}>
+        <div
+          className="position-fixed bottom-0 start-50 translate-middle-x mb-4 px-4 py-2 bg-dark text-white rounded-pill shadow"
+          style={{ zIndex: 9999, whiteSpace: "nowrap", fontSize: 14 }}
+        >
           ✓ {toast}
         </div>
       )}
