@@ -86,7 +86,7 @@ export default function Login() {
                 </a>
               </div>
 
-              {/* Login Button */}
+              {/* the login button */}
               <button type="submit" className="btn btn-primary w-100 mb-3">
                 Login
               </button>
