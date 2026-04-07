@@ -69,7 +69,7 @@ export default function Checkout() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
 
-      {/* NAVBAR */}
+      {/* navbar */}
       <nav className="bg-white shadow-md px-8 py-4 flex justify-between items-center">
         <Link to="/" className="text-xl font-bold">
           USIU Market
