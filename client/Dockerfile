@@ -17,6 +17,6 @@ RUN npm run build
 FROM node:20-alpine
 COPY ./package.json package-lock.json /src/
 COPY --from=production-dependencies-env /src/node_modules /src/node_modules
-COPY --from=build-env /src/build /src/build
+COPY --from=build-env /src/dist /src/dist
 WORKDIR /src
 CMD ["npm", "run", "start"]
