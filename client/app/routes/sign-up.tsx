@@ -33,7 +33,7 @@ export default function SignUp() {
 
             <form onSubmit={handleSubmit}>
 
-              {/* Names */}
+              {/* The names */}
               <div className="row mb-3">
                 <div className="col">
                   <label className="form-label">First Name</label>
